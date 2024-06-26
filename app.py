@@ -41,11 +41,22 @@ def authenticate_user(username, password):
 with open('quiz_questions.txt', 'r', encoding='utf-8') as file:
     content = file.read().strip()
 questions = content.split('\n\n')
+#print(f"@44 {questions=}")
 sets = []
+syukei_dic={}
 for question in questions:
     parts = question.split('\n')
-    if len(parts) == 4:
+    if len(parts) == 5:
         sets.append(parts)
+        part5=parts[4].split(":")#５行目のジャンルの要素を取り出し、分解する
+        for ar1 in part5:#ジャンルの集計
+            if ar1 in syukei_dic:
+                syukei_dic[ar1]+=1
+            else:
+                syukei_dic[ar1]=1
+
+print(f"@59 {sets=}")
+print(f"@60 {syukei_dic=}")
 
 
 # SQLite3データベース接続設定
