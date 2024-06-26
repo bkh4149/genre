@@ -1,0 +1,10 @@
+2024/05/12　ファイルの整理
+app.py :起動ファイル
+createquiz.py：問題の作成と編集
+quiz_questions.txt ：テキスト形式の問題文
+sugizaki.db：ログイン用
+
+
+    admin.hmtl：メインメニュ
+    e-index.hyml：編集用
+    edit.html　：

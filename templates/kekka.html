@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Month Quiz</title>
+    <!-- Bootstrap CSS -->
+</head>
+<body >
+    <div class="card-header text-center">
+        <h3>問題 Q_no={{Q_no}}</h3>
+    
+    </div>
+    <div >
+        {% if Q_no==3 %}
+            <p>終了</p> 
+            <a href="{{ url_for('admin') }}">戻る</a>    
+        {% else %} <br>
+            <form action="/question" method="get">
+            経過時間{{et}}M<br>
+                <button type="submit" >Next</button>
+            </form>  
+        {% endif %}
+    </div>
+
+
+</body>
+</html>
