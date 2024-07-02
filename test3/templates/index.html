@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>質問リスト</title>
+    <style>
+        .selected-category {
+            font-size: 2em;
+            color: red;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>質問リスト</h1>
+    <table border=1>
+        <th>ジャンル</th>
+        <th>問題数</th>
+
+        {% for category, count in syukei_dic.items() %}
+
+            <tr>
+                <td><input type="radio" id="{{ category }}" name="category" value="{{ category }}">
+                <label for="{{ category }}">{{ category }}</label>
+                </td>
+                <td> {{ count }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <div class="selected-category" id="selected-category"></div>
+
+    <script>
+        document.querySelectorAll('input[name="category"]').forEach((input) => {
+            input.addEventListener('change', (event) => {
+                const selectedCategory = event.target.value;
+                fetch('/select', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ category: selectedCategory })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('selected-category').innerText = '選択したジャンル: ' + data.category;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
