@@ -13,7 +13,19 @@
     <button onclick="window.location.href='/editQuiz'">テスト一覧・編集</button>
     <button onclick="window.location.href='/createQuiz'">テスト作成</button>
     <button onclick="window.location.href='/login'">ユーザー情報</button>
+    <table border=1>
+        <th>ジャンル</th>
+        <th>問題数</th>
+        {% for category, count in syukei_dic.items() %}
 
+        <tr>
+            <td><input type="radio" id="{{ category }}" name="category" value="{{ category }}">
+            <label for="{{ category }}">{{ category }}</label>
+            </td>
+            <td> {{ count }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
 
 </body>

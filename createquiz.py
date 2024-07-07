@@ -7,12 +7,12 @@ def load_questions():
     try:
         with open('quiz_questions.txt', 'r', encoding='utf-8') as file:
             lines = file.read().split('\n\n') #ファイルを読んで、2改行があったら分ける
-        print(f"@=9====={lines=}") #デバッグ出力
+        #print(f"@=9====={lines=}") #デバッグ出力
         questions = [] 
         for line in lines:
-            print(f"@=11====={line=}") #デバッグ出力
+            #print(f"@=11====={line=}") #デバッグ出力
             parts = line.split('\n')
-            if len(parts) == 4:
+            if len(parts) == 5:
                 questions.append({'title': parts[0], 'choices': parts[1], 'answer': parts[2], 'explanation': parts[3]})
         return questions
     except Exception as e:

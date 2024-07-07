@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>質問リスト</title>
+</head>
+<body>
+    <h1>質問リスト</h1>
+    <ul>
+        {% for category, count in syukei_dic.items() %}
+            <li>{{ category }}: {{ count }}問</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
