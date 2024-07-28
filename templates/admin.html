@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -13,19 +12,29 @@
     <button onclick="window.location.href='/editQuiz'">テスト一覧・編集</button>
     <button onclick="window.location.href='/createQuiz'">テスト作成</button>
     <button onclick="window.location.href='/login'">ユーザー情報</button>
-    <table border=1>
-        <th>ジャンル</th>
-        <th>問題数</th>
-        {% for category, count in syukei_dic.items() %}
-
-        <tr>
-            <td><input type="radio" id="{{ category }}" name="category" value="{{ category }}">
-            <label for="{{ category }}">{{ category }}</label>
-            </td>
-            <td> {{ count }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    
+    <form action="/first_question" method="post">
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ジャンル</th>
+                    <th>問題数</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category, count in genreBasedQDic.items() %}
+                <tr>
+                    <td>
+                        <input type="radio" id="{{ category }}" name="category" value="{{ category }}">
+                        <label for="{{ category }}">{{ category }}</label>
+                    </td>
+                    <td>{{ count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">選択を送信</button>
+    </form>
 </div>
 
 </body>

@@ -38,28 +38,40 @@ def authenticate_user(username, password):
             connection.close()
     return False
 
-#最初に動くところ
+#最初に動くところ グローバル変数になっている
 with open('quiz_questions.txt', 'r', encoding='utf-8') as file:
     content = file.read().strip()
 questions = content.split('\n\n')
-#print(f"@44 {questions=}")
-sets = []
-syukei_dic={}
+#print(f"app@44 {questions=}")
+Qrecords = []#Qrecordを集めたもの
+#Qrecords=[['1', '雑学:日時', '問題1 今月は何月ですか？', '4月:5月:6月:7月:8月:9月:10月:11月:12月:1月:2月:3月', '6月', '説明1'], ['2',,,,,], ['3',,,,,], ['4',,,,,]]
+genreBasedQDic={}
 for i,question in enumerate(questions):
-    parts = question.split('\n')
-    if len(parts) == 5:
-        sets.append(parts)
-        part5=parts[4].split(":")#５行目のジャンルの要素を取り出し、分解する
-        for ar1 in part5:#ジャンルの集計
-            if ar1 in syukei_dic:
-                syukei_dic[ar1]["総数"]+=1
-                syukei_dic[ar1]["ids"].append(i)
+    Qrecord = question.split('\n')
+    #print(f"app@50 {Qrecord=}")
+    # Qrecord=['4', '雑学:地理', '問題4 日本の首都は？', '大阪:東京:福岡:仙台:青森:広島:盛岡', '東京', '日本の首都は東京です。']
+    if len(Qrecord) == 6:
+        Qrecords.append(Qrecord)
+        #print(f"app@54 {Qrecords=}")
+        genreList = Qrecord[1].split(":")#１行目のジャンルの要素を取り出し、分解,配列化
+        for genre in genreList:#ジャンルの集計
+            if genre in genreBasedQDic:
+                genreBasedQDic[genre]["総数"]+=1
+                genreBasedQDic[genre]["ids"].append(i)
             else:
-                syukei_dic[ar1]={"総数":1,"ids":[i]}
+                genreBasedQDic[genre]={"総数":1,"ids":[i]}
 
-#print(f"@59 {sets=}")
-print(f"@60 {syukei_dic=}")
+#print(f"@59 {Qrecords=}")
+#print(f"app@61 {genreBasedQDic=}")
+#genreBasedQDic={'雑学': {'総数': 7, 'ids': [0, 1, 2, 3, 4, 5, 6]}, '日時': {'総数': 1, 'ids': [0]}, '動物': {'総数': 1, 'ids': [1]},,,,}
 
+def makeQMap(genreX):
+    tmp=genreBasedQDic[genreX]["ids"]
+    #print(f"@71 {tmp=}")
+    n=min(3,genreBasedQDic[genreX]["総数"])
+    genreBasedQMap= random.sample(tmp, n)
+    print(f"@71 {genreBasedQMap=}")
+    return genreBasedQMap
 
 # SQLite3データベース接続設定
 def create_db_connection():
@@ -128,7 +140,7 @@ def loginok():
 @app.route('/admin')
 def admin():
     print("管理者画面に飛んできました")
-    return render_template('admin.html',syukei_dic=syukei_dic)
+    return render_template('admin.html',genreBasedQDic=genreBasedQDic)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -152,20 +164,35 @@ def signup():
                 return render_template("error.html")
     return render_template("signup.html")
 
+
+#最初の１問目だけここを通る
+@app.route('/first_question', methods=[ 'POST']) 
+def first_question():
+    genreX = request.form.get('category',"none")
+    print(f"@172 { genreX=}")
+    genreBasedQMap = makeQMap(genreX)
+    session["genreBasedQMap"] = genreBasedQMap
+    session["Q_no"]=0
+    return redirect(url_for('question'))
+
+
 @app.route('/question') #questionが飛んできたらプログラムが実行
 def question():
     if 'username' not in session:
         return redirect(url_for('login'))
     else:
-        print(f"@140= {session=}")
+        #print(f"@140= {session=}")
         Q_no = session["Q_no"]
-        print("Q_no=",Q_no)
-        q1 = sets[Q_no]
-        
-        # q1= ["問題1 今月は何月ですか？", "6月:7月:8月:9月:10月:11月:12月", "10月", "説明1"]
-        print(q1[0])  # 質問文の表示
+        genreBasedQMap = session["genreBasedQMap"]
+        id_no = genreBasedQMap[Q_no]
+        #print(f"@188 {Q_no=}  {genreBasedQMap=} {id_no=}")#@188 Q_no=0  genreBasedQMap=[5, 2, 4] id_no=5
+        q1 = Qrecords[id_no]
+        print(f"@190 {q1=}")#
 
-        arr = q1[1].split(":")  # 解答群の作成　多数の中から４つをランダムで選択
+        # q1= ["問題1 今月は何月ですか？", "6月:7月:8月:9月:10月:11月:12月", "10月", "説明1"]
+        print(q1[2])  # 質問文の表示
+
+        arr = q1[3].split(":")  # 解答群の作成　多数の中から４つをランダムで選択
         print("arr=",arr)
         if len(arr) < 4:
             crs = len(arr)
@@ -176,7 +203,7 @@ def question():
         for i, choice in enumerate(result, 1):
             print(i, choice)
         
-        cs_temp = set(q1[2].split(":")) #正解をここで作っておく　["ペンギン","カモメ","スズメ"]
+        cs_temp = set(q1[4].split(":")) #正解をここで作っておく　["ペンギン","カモメ","スズメ"]
         correct_choices = set(result) & cs_temp #setは集合体　
         session["correct_ans"] = correct_choices #sessionの中にキーとバリューを入れる
         print(f"@165: correct_choices={correct_choices}")  # デバッグ用ログ出力
@@ -184,26 +211,30 @@ def question():
         formatted_date_string = start_datetime.strftime('%Y-%m-%d %H:%M:%S') #日付型を文字列に変換する
         session["start_datetime"] = formatted_date_string #文字列にしたことでセッションに保存できる
         print(f"開始時刻: {start_datetime}")
-        return render_template('question.html', question=q1[0], choices=result)
+        return render_template('question.html', question=q1[2], choices=result)
 
 @app.route('/answer', methods=['GET']) #answerが飛んできたら下のプログラムが実行
 def check_answer():
     correct_ans = session.get("correct_ans", set())
-    print(f"correct_ans={correct_ans}")  # デバッグ用ログ出力
     # correct_ans=session["correct_ans"]
     print("correct_ans=",correct_ans)
     user_choice = request.args.getlist('choice[]')
-    end_datetime = datetime.now()
-    print(f"終了時刻: {end_datetime}")
-    print(f"@200:{session = } ")
-    date_string = session["start_datetime"]
-    start_datetime = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S')
-    elapsed_time = end_datetime - start_datetime
-    print(f"{elapsed_time=}")
-    elapsed_time_str = str(elapsed_time)
-    print(f"@209{elapsed_time_str=}")
     print("user_choice=",user_choice)
+    print(f"{correct_ans=} {correct_ans=}")  # デバッグ用ログ出力
+
+
+    # end_datetime = datetime.now()
+    # print(f"終了時刻: {end_datetime}")
+    # print(f"@200:{session = } ")
+    # date_string = session["start_datetime"]
+    # start_datetime = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S')
+    # elapsed_time = end_datetime - start_datetime
+    # print(f"{elapsed_time=}")
+    # elapsed_time_str = str(elapsed_time)
+    # print(f"@209{elapsed_time_str=}")
     # print(f"経過時間: {elapsed_time}")
+    elapsed_time_str="0"#test debug用　後で消す
+
 
     correct_set = correct_ans 
     user_set = set(user_choice) #右がbefore、左はafter

@@ -7,13 +7,13 @@ def load_questions():
     try:
         with open('quiz_questions.txt', 'r', encoding='utf-8') as file:
             lines = file.read().split('\n\n') #ファイルを読んで、2改行があったら分ける
-        #print(f"@=9====={lines=}") #デバッグ出力
+        print(f"@=9====={lines=}") #デバッグ出力
         questions = [] 
         for line in lines:
             #print(f"@=11====={line=}") #デバッグ出力
             parts = line.split('\n')
-            if len(parts) == 5:
-                questions.append({'title': parts[0], 'choices': parts[1], 'answer': parts[2], 'explanation': parts[3]})
+            if len(parts) == 6:
+                questions.append({'id':parts[0], 'genre':parts[1] ,'title': parts[2], 'choices': parts[3], 'answer': parts[4], 'explanation': parts[5]})
         return questions
     except Exception as e:
         print(f"Error loading questions: {e}")
@@ -24,7 +24,7 @@ def save_questions(questions):
     try:
         with open('quiz_questions.txt', 'w', encoding='utf-8') as file:
             for q in questions:
-                file.write(f"{q['title']}\n{q['choices']}\n{q['answer']}\n{q['explanation']}\n\n")
+                file.write(f"{q['id']}\n{q['genre']}\n{q['title']}\n{q['choices']}\n{q['answer']}\n{q['explanation']}\n\n")
     except Exception as e:
         print(f"Error saving questions: {e}")
 

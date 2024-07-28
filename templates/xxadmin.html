@@ -1,0 +1,33 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Tab Example</title>
+</head>
+<body>
+
+<div class="tab">
+    <h1>管理者画面</h1>
+    <button onclick="window.location.href='/question'">テストを実施</button>
+    <button onclick="window.location.href='/editQuiz'">テスト一覧・編集</button>
+    <button onclick="window.location.href='/createQuiz'">テスト作成</button>
+    <button onclick="window.location.href='/login'">ユーザー情報</button>
+    <table border=1>
+        <th>ジャンル</th>
+        <th>問題数</th>
+        {% for category, count in genreBasedQDic.items() %}
+
+        <tr>
+            <td>
+                <input type="radio" id="{{ category }}" name="category" value="{{ category }}">
+                <label for="{{ category }}">{{ category }}</label>
+            </td>
+            <td>{{ count }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+</body>
+</html>
