@@ -254,7 +254,11 @@ def check_answer():
     Q = session["Q_no"]
     Q = Q + 1
     session["Q_no"]=Q
-    return render_template('kekka.html',et=elapsed_time_str, kekka=answer,Q_no=Q)
+    genreBasedQMap=session["genreBasedQMap"]
+    #print(f"app.py@258   {genreBasedQMap=}")
+    end_num=min(len(genreBasedQMap),3)#何問で終了するかの問題数　ここではmax3としているがあとで増やす
+    #print(f"app.py@259 {end_num=} ")
+    return render_template('kekka.html',et=elapsed_time_str, kekka=answer, Q_no=Q, end_num=end_num)
 
 # 以下、質問ページなどのルートは省略
 
