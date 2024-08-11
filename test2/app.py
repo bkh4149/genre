@@ -1,3 +1,5 @@
+
+#ジャンル別に表示させてみる
 from flask import Flask, render_template
 
 app = Flask(__name__)

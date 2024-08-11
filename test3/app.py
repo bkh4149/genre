@@ -1,3 +1,5 @@
+#ジャンルを表示して選択、それがそのジャンルかをサーバーで認識して送り返す
+#２回めのやり取りはjsonを使っている、クライアントはJavaScript　（fetch）
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
