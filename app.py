@@ -45,7 +45,7 @@ questions = content.split('\n\n')
 #print(f"app@44 {questions=}")
 Qrecords = []#Qrecordを集めたもの
 #Qrecords=[['1', '雑学:日時', '問題1 今月は何月ですか？', '4月:5月:6月:7月:8月:9月:10月:11月:12月:1月:2月:3月', '6月', '説明1'], ['2',,,,,], ['3',,,,,], ['4',,,,,]]
-genreBasedQDic={}
+genreBasedQDic={}#genreBasedQDicはジャンルごとの問題数とそのid番号のリストが入った辞書
 for i,question in enumerate(questions):
     Qrecord = question.split('\n')
     #print(f"app@50 {Qrecord=}")
@@ -56,6 +56,9 @@ for i,question in enumerate(questions):
         genreList = Qrecord[1].split(":")#１行目のジャンルの要素を取り出し、分解,配列化
         for genre in genreList:#ジャンルの集計
             if genre in genreBasedQDic:
+                #genreBasedQDicはジャンルごとの問題数とそのid番号のリストが入った辞書
+                #genreBasedQDic={'雑学': {'総数': 7, 'ids': [0, 1, 2, 3, 4, 5, 6]}, '日時': {'総数': 1, 'ids': [0]}, '動物': {'総数': 1, 'ids': [1]},,,,}
+
                 genreBasedQDic[genre]["総数"]+=1
                 genreBasedQDic[genre]["ids"].append(i)
             else:
@@ -63,14 +66,13 @@ for i,question in enumerate(questions):
 
 #print(f"@59 {Qrecords=}")
 #print(f"app@61 {genreBasedQDic=}")
-#genreBasedQDic={'雑学': {'総数': 7, 'ids': [0, 1, 2, 3, 4, 5, 6]}, '日時': {'総数': 1, 'ids': [0]}, '動物': {'総数': 1, 'ids': [1]},,,,}
 
 def makeQMap(genreX):
     tmp=genreBasedQDic[genreX]["ids"]
     #print(f"@71 {tmp=}")
-    n=min(3,genreBasedQDic[genreX]["総数"])
+    n=min(3,genreBasedQDic[genreX]["総数"])#◆何問ダスカはここで決めている
     genreBasedQMap= random.sample(tmp, n)
-    print(f"@71 {genreBasedQMap=}")
+    print(f"@71 {genreBasedQMap=}")#どの問題をどういう順番で出すかのリスト＝genreBasedQMap
     return genreBasedQMap
 
 # SQLite3データベース接続設定

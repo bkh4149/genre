@@ -16,11 +16,12 @@
     <table border=1>
         <th>ジャンル</th>
         <th>問題数</th>
-
+        <!-- この部分はjinja -->
         {% for category, count in syukei_dic.items() %}
 
             <tr>
                 <td><input type="radio" id="{{ category }}" name="category" value="{{ category }}">
+                <!-- ここもjinja 複数のラジオボタン　-->
                 <label for="{{ category }}">{{ category }}</label>
                 </td>
                 <td> {{ count }}</td>
@@ -30,17 +31,18 @@
     <div class="selected-category" id="selected-category"></div>
 
     <script>
+        // 全部のラジオボタンに入力後サーバーに送る機能を追加
         document.querySelectorAll('input[name="category"]').forEach((input) => {
             input.addEventListener('change', (event) => {
-                const selectedCategory = event.target.value;
+                const selectedCategory = event.target.value;//s
                 fetch('/select', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json'//sds
                     },
                     body: JSON.stringify({ category: selectedCategory })
                 })
-                .then(response => response.json())
+                .then(response => response.json())//dss
                 .then(data => {
                     document.getElementById('selected-category').innerText = '選択したジャンル: ' + data.category;
                 });
