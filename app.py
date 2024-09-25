@@ -42,7 +42,6 @@ def authenticate_user(username, password):
 with open('quiz_questions.txt', 'r', encoding='utf-8') as file:
     content = file.read().strip()
 questions = content.split('\n\n')
-#print(f"app@44 {questions=}")
 Qrecords = []#Qrecordを集めたもの
 #Qrecords=[['1', '雑学:日時', '問題1 今月は何月ですか？', '4月:5月:6月:7月:8月:9月:10月:11月:12月:1月:2月:3月', '6月', '説明1'], ['2',,,,,], ['3',,,,,], ['4',,,,,]]
 genreBasedQDic={}#genreBasedQDicはジャンルごとの問題数とそのid番号のリストが入った辞書
@@ -64,12 +63,8 @@ for i,question in enumerate(questions):
             else:
                 genreBasedQDic[genre]={"総数":1,"ids":[i]}
 
-#print(f"@59 {Qrecords=}")
-#print(f"app@61 {genreBasedQDic=}")
-
 def makeQMap(genreX):
     tmp=genreBasedQDic[genreX]["ids"]
-    #print(f"@71 {tmp=}")
     n=min(3,genreBasedQDic[genreX]["総数"])#◆何問ダスカはここで決めている
     genreBasedQMap= random.sample(tmp, n)
     print(f"@71 {genreBasedQMap=}")#どの問題をどういう順番で出すかのリスト＝genreBasedQMap
@@ -183,90 +178,66 @@ def question():
     if 'username' not in session:
         return redirect(url_for('login'))
     else:
-        #print(f"@140= {session=}")
         Q_no = session["Q_no"]
         genreBasedQMap = session["genreBasedQMap"]
         id_no = genreBasedQMap[Q_no]
-        #print(f"@188 {Q_no=}  {genreBasedQMap=} {id_no=}")#@188 Q_no=0  genreBasedQMap=[5, 2, 4] id_no=5
+        #genreBasedQMap=[5, 2, 4] Q_no=0  id_no=5
         q1 = Qrecords[id_no]
-        print(f"@190 {q1=}")#
-
         # q1= ["問題1 今月は何月ですか？", "6月:7月:8月:9月:10月:11月:12月", "10月", "説明1"]
-        print(q1[2])  # 質問文の表示
-
         arr = q1[3].split(":")  # 解答群の作成　多数の中から４つをランダムで選択
-        print("arr=",arr)
         if len(arr) < 4:
             crs = len(arr)
         else:
             crs = 4    
         result = random.sample(arr, crs)
         
-        for i, choice in enumerate(result, 1):
-            print(i, choice)
-        
+        session["result"] = result
         cs_temp = set(q1[4].split(":")) #正解をここで作っておく　["ペンギン","カモメ","スズメ"]
         correct_choices = set(result) & cs_temp #setは集合体　
         session["correct_ans"] = correct_choices #sessionの中にキーとバリューを入れる
-        print(f"@165: correct_choices={correct_choices}")  # デバッグ用ログ出力
         start_datetime = datetime.now() #今現在の日付型を取得する
         formatted_date_string = start_datetime.strftime('%Y-%m-%d %H:%M:%S') #日付型を文字列に変換する
         session["start_datetime"] = formatted_date_string #文字列にしたことでセッションに保存できる
-        print(f"開始時刻: {start_datetime}")
         return render_template('question.html', question=q1[2], choices=result)
 
-@app.route('/answer', methods=['GET']) #answerが飛んできたら下のプログラムが実行
+
+
+@app.route('/answer', methods=['GET'])
 def check_answer():
+    result = session["result"] #問題にセッションを持たせる
     correct_ans = session.get("correct_ans", set())
-    # correct_ans=session["correct_ans"]
-    print("correct_ans=",correct_ans)
+    list_correct_ans = list(correct_ans) #集合型を配列にした
+    print(f"{list_correct_ans=}")
+    dic ={}
+    for sentaku in result:
+        if sentaku in list_correct_ans:
+            dic[sentaku] = "○"
+        else:
+            dic[sentaku] = "×"
+    print(dic)
+
     user_choice = request.args.getlist('choice[]')
-    print("user_choice=",user_choice)
-    print(f"{correct_ans=} {correct_ans=}")  # デバッグ用ログ出力
+    end_datetime = datetime.now()
+    date_string = session["start_datetime"]
+    start_datetime = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S')
+    elapsed_time = end_datetime - start_datetime
+    elapsed_time_str = str(elapsed_time)
+    user_set = set(user_choice)
 
 
-    # end_datetime = datetime.now()
-    # print(f"終了時刻: {end_datetime}")
-    # print(f"@200:{session = } ")
-    # date_string = session["start_datetime"]
-    # start_datetime = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S')
-    # elapsed_time = end_datetime - start_datetime
-    # print(f"{elapsed_time=}")
-    # elapsed_time_str = str(elapsed_time)
-    # print(f"@209{elapsed_time_str=}")
-    # print(f"経過時間: {elapsed_time}")
-    elapsed_time_str="0"#test debug用　後で消す
-
-
-    correct_set = correct_ans 
-    user_set = set(user_choice) #右がbefore、左はafter
-
-
-    if user_set == correct_set:
-        print("正解")
+    if user_set == correct_ans:
         answer = "正解"
     else:
-        if correct_ans:
-            print(f"不正解。正しい答えは: {correct_ans}")
-            answer = f"不正解。正しい答えは: {', '.join(correct_ans)}"
-        else:
-            answer = "不正解"
+        answer = f"不正解。正しい答えは: {', '.join(correct_ans)}"
 
-    #Qをプラス
     Q = session["Q_no"]
-    Q = Q + 1
-    session["Q_no"]=Q
-    genreBasedQMap=session["genreBasedQMap"]
-    #print(f"app.py@258   {genreBasedQMap=}")
-    end_num=min(len(genreBasedQMap),3)#何問で終了するかの問題数　ここではmax3としているがあとで増やす
-    #print(f"app.py@259 {end_num=} ")
-    return render_template('kekka.html',et=elapsed_time_str, kekka=answer, Q_no=Q, end_num=end_num)
+    Q += 1
+    session["Q_no"] = Q
 
-# # 以下、質問ページなどのルートは省略
+    user_choice_str = ', '.join(user_choice)
+    correct_ans_str = ', '.join(correct_ans)
 
-# if __name__ == "__main__":
-#     app.run(debug=True, port=8888)
-
+    return render_template('kekka.html', answer=answer, et=elapsed_time_str, Q_no=Q, user_choice=user_choice_str, correct_ans=correct_ans_str ,dic=dic)
 
 
 #--------------main-------------------------
