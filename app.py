@@ -262,7 +262,33 @@ def check_answer():
     #print(f"app.py@259 {end_num=} ")
     return render_template('kekka.html',et=elapsed_time_str, kekka=answer, Q_no=Q, end_num=end_num)
 
-# 以下、質問ページなどのルートは省略
+# # 以下、質問ページなどのルートは省略
 
-if __name__ == "__main__":
-    app.run(debug=True, port=8888)
+# if __name__ == "__main__":
+#     app.run(debug=True, port=8888)
+
+
+
+#--------------main-------------------------
+import os
+# 環境変数 MY_ENV を取得
+my_env = os.getenv('MY_ENV', 'dev') # デフォルト値として 'dev' を使用
+session_secret_key=os.getenv('session_secret_key', 'dev')
+print(f"{my_env=}  {session_secret_key=}")
+# 開発時　my_env='dev'  session_secret_key='dev'
+#　本番時　my_env='production'  session_secret_key='production'
+app.config['SECRET_KEY'] = session_secret_key
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
+
+
+if my_env == 'production':
+    # 本番用の設定や処理
+    print("本番モードで実行中")
+    connect={"host":"localhost", "user":"root", "password":"12345", "db":"user"}
+    app.run(host='0.0.0.0', port=8800)
+else:
+    # 開発用の設定や処理
+    print("開発モードで実行中")
+    connect={"host":"localhost", "user":"root", "password":"", "db":"user"}
+    app.run(debug=True)
